@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
-import { Menu, Input, Button, Row, Col, Card, Avatar, Form } from 'antd';
+import { Col, Input, Menu, Row } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
-
-const dummy = {
-    nickname: '유석규',
-    Post: [],
-    Followings: [],
-    Followers: [],
-    isLoggedIn: false,
-};
+import { LOAD_USER_REQUEST } from '../reducers/user';
 
 const AppLayout = ({ children }) => {
+    const { isLoggedIn, me } = useSelector(state => state.user);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!me) {
+            dispatch({
+                type: LOAD_USER_REQUEST,
+            });
+        }
+    }, []);
+
     return (
         <div>
             <Menu mode="horizontal">
@@ -36,18 +41,21 @@ const AppLayout = ({ children }) => {
             </Menu>
             <Row gutter={8}>
                 <Col xs={24} md={6}>
-                    {dummy.isLoggedIn ? <UserProfile /> : <LoginForm />}
+                    {me ? <UserProfile /> : <LoginForm />}
                 </Col>
                 <Col xs={24} md={12}>
                     {children}
                 </Col>
                 <Col xs={24} md={6}>
-                    3
+                    <Link href="https://www.zerocho.com">
+                        <a target="_blank">Made by ZeroCho</a>
+                    </Link>
                 </Col>
             </Row>
         </div>
     );
 };
+
 AppLayout.propTypes = {
     children: PropTypes.node,
 };

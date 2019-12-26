@@ -1,7 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
+import { Button, Checkbox, Form, Input } from 'antd';
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import Router from 'next/router';
+import { SIGN_UP_REQUEST } from '../reducers/user';
 
-import { Form, Input, Checkbox, Button } from 'antd';
-import Password from 'antd/lib/input/Password';
+const TextInput = ({ value }) => <div>{value}</div>;
+
+TextInput.propTypes = {
+    value: PropTypes.string,
+};
 
 export const useInput = (initValue = null) => {
     const [value, setter] = useState(initValue);
@@ -10,10 +18,8 @@ export const useInput = (initValue = null) => {
     }, []);
     return [value, handler];
 };
+
 const Signup = () => {
-    // const [id, setId] = useState('');
-    // const [nick, setNick] = useState('');
-    // const [password, setPassword] = useState('');
     const [passwordCheck, setPasswordCheck] = useState('');
     const [term, setTerm] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
@@ -22,6 +28,15 @@ const Signup = () => {
     const [id, onChangeId] = useInput('');
     const [nick, onChangeNick] = useInput('');
     const [password, onChangePassword] = useInput('');
+    const dispatch = useDispatch();
+    const { isSigningUp, me } = useSelector(state => state.user);
+
+    useEffect(() => {
+        if (me) {
+            alert('로그인했으니 메인페이지로 이동합니다.');
+            Router.push('/');
+        }
+    }, [me && me.id]);
 
     const onSubmit = useCallback(
         e => {
@@ -32,39 +47,35 @@ const Signup = () => {
             if (!term) {
                 return setTermError(true);
             }
-            // console.log({
-            //     id,
-            //     nick,
-            //     password,
-            //     passwordCheck,
-            //     term,
-            // });
+            return dispatch({
+                type: SIGN_UP_REQUEST,
+                data: {
+                    userId: id,
+                    password,
+                    nickname: nick,
+                },
+            });
         },
-        [password, passwordCheck, term],
+        [id, nick, password, passwordCheck, term],
     );
-    // const onChangeId = e => {
-    //     setId(e.target.value);
-    // };
-    // const onChangeNick = e => {
-    //     setNick(e.target.value);
-    // };
-    // const onChangePassword = e => {
-    //     setPassword(e.target.value);
-    // };
+
     const onChangePasswordCheck = useCallback(
         e => {
             setPasswordError(e.target.value !== password);
             setPasswordCheck(e.target.value);
         },
-        [Password],
+        [password],
     );
+
     const onChangeTerm = useCallback(e => {
         setTermError(false);
         setTerm(e.target.checked);
     }, []);
+
     return (
         <>
             <Form onSubmit={onSubmit} style={{ padding: 10 }}>
+                <TextInput value="135135" />
                 <div>
                     <label htmlFor="user-id">아이디</label>
                     <br />
@@ -97,7 +108,7 @@ const Signup = () => {
                     />
                 </div>
                 <div>
-                    <label htmlFor="user-password-check">비밀번호 확인</label>
+                    <label htmlFor="user-password-check">비밀번호체크</label>
                     <br />
                     <Input
                         name="user-password-check"
@@ -113,8 +124,12 @@ const Signup = () => {
                     )}
                 </div>
                 <div>
-                    <Checkbox name="user-term" onChange={onChangeTerm}>
-                        동의합니다.
+                    <Checkbox
+                        name="user-term"
+                        checked={term}
+                        onChange={onChangeTerm}
+                    >
+                        제로초 말을 잘 들을 것을 동의합니다.
                     </Checkbox>
                     {termError && (
                         <div style={{ color: 'red' }}>
@@ -122,8 +137,12 @@ const Signup = () => {
                         </div>
                     )}
                 </div>
-                <div>
-                    <Button type="primary" htmlType="submit">
+                <div style={{ marginTop: 10 }}>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={isSigningUp}
+                    >
                         가입하기
                     </Button>
                 </div>

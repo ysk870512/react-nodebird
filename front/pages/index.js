@@ -1,28 +1,20 @@
-import React from 'React';
+import React, { useEffect } from 'React';
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
-
-const dummy = {
-    isLoggedIn: true,
-    imagePaths: [],
-    mainPosts: [
-        {
-            User: {
-                id: 1,
-                nickname: '유석규',
-            },
-            content: '첫번째 게시글',
-            img:
-                'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-        },
-    ],
-};
+import { useSelector } from 'react-redux';
 
 const Home = () => {
+    const { user, isLoggedIn } = useSelector(state => state.user);
+    const { mainPosts } = useSelector(state => state.post);
     return (
         <div>
-            {dummy.isLoggedIn && <PostForm />}
-            {dummy.mainPosts.map(c => {
+            {user ? (
+                <div>로그인 했습니다: {user.nickname}</div>
+            ) : (
+                <div>로그아웃 했습니다.</div>
+            )}
+            {isLoggedIn && <PostForm />}
+            {mainPosts.map(c => {
                 return <PostCard key={c} post={c} />;
             })}
         </div>

@@ -1,5 +1,6 @@
+import { Button, Form, Input } from 'antd';
 import React from 'react';
-import { Form, Input, Button } from 'antd';
+
 const NicknameEditForm = () => {
     return (
         <Form
