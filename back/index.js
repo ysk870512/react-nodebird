@@ -1,13 +1,17 @@
 const express = require('express');
 
-const app = express();
+const db = require('./models');
+const userAPIRouter = require('./routes/user');
+const postAPIRouter = require('./routes/post');
+const postsAPIRouter = require('./routes/posts');
 
-app.get('/', (req, res) => {
-    res.send('hello, server');
-});
-app.get('/about', (req, res) => {
-    res.send('hello, about');
-});
+const app = express();
+db.sequelize.sync();
+
+app.use('/api/user', userAPIRouter);
+app.use('/api/post', postAPIRouter);
+app.use('/api/posts', postsAPIRouter);
+
 app.listen(3065, () => {
     console.log('server is running on localhost:3065');
 });
